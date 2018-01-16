@@ -156,11 +156,19 @@ int main(int argc, char **argv) {
 	struct addrinfo hints;
 	struct termios tios;
 
+	FILE *fp;
+
 	/* check usage */
 	if (argc != 3) {
 		fprintf(stderr, "Usage:\n ./telnet-client <host> <port>\n");
 		return 1;
 	}
+
+	// prool begin
+	fp=fopen("prooltel.log","a");
+	if (fp==0) printf("Can't open prooltel.log\n");
+	if (fp) fputs("log open\n", fp);
+	// prool end
 
 	/* look up server host */
 	memset(&hints, 0, sizeof(hints));

@@ -1,4 +1,10 @@
 /*
+Simple mud server by prool
+http://prool.kharkov.org
+proolix@gmail.com
+*/
+
+/*
  * Sean Middleditch
  * sean@sourcemud.org
  *
@@ -67,13 +73,19 @@ static void linebuffer_push(char *buffer, size_t size, int *linepos,
 		char ch, void (*cb)(const char *line, int overflow, void *ud),
 		void *ud) {
 
+	//printf("%02X ", ch); // prool debug
+
 	/* CRLF -- line terminator */
 	if (ch == '\n' && *linepos > 0 && buffer[*linepos - 1] == '\r') {
 		/* NUL terminate (replaces \r in buffer), notify app, clear */
 		buffer[*linepos - 1] = 0;
 		cb(buffer, 0, ud);
 		*linepos = 0;
-
+	// prool fool: LF - line terminator (for JMC)
+	} else if (ch=='\n') {
+		buffer[*linepos]=0;
+		cb(buffer,0,ud);
+		*linepos=0;
 	/* CRNUL -- just a CR */
 	} else if (ch == 0 && *linepos > 0 && buffer[*linepos - 1] == '\r') {
 		/* do nothing, the CR is already in the buffer */
@@ -167,6 +179,16 @@ static void _online(const char *line, int overflow, void *ud) {
 		return;
 	}
 
+	else if (strcmp(line,"test")==0) {
+		_message("prooltest", "!");
+		return;
+	}
+
+	else if (strcmp(line,"shutdown")==0) {
+		_message("shutdown", "!");
+		exit(0);
+	}
+
 	/* just a message -- send to all users */
 	_message(user->name, line);
 }
@@ -188,7 +210,7 @@ static void _event_handler(telnet_t *telnet, telnet_event_t *ev,
 	case TELNET_EV_DATA:
 		_input(user, ev->data.buffer, ev->data.size);
 					telnet_negotiate(telnet, TELNET_WONT, TELNET_TELOPT_ECHO);
-			telnet_negotiate(telnet, TELNET_WILL, TELNET_TELOPT_ECHO);
+//			telnet_negotiate(telnet, TELNET_WILL, TELNET_TELOPT_ECHO); // prool fool
 		break;
 	/* data must be sent */
 	case TELNET_EV_SEND:
@@ -327,9 +349,10 @@ int main(int argc, char **argv) {
 					&users[i]);
 			telnet_negotiate(users[i].telnet, TELNET_WILL,
 					TELNET_TELOPT_COMPRESS2);
+			telnet_printf(users[i].telnet, "0MUD. Ноль мад\r\n\r\n");
 			telnet_printf(users[i].telnet, "Enter name: ");
 
-			telnet_negotiate(users[i].telnet, TELNET_WILL, TELNET_TELOPT_ECHO);
+			//telnet_negotiate(users[i].telnet, TELNET_WILL, TELNET_TELOPT_ECHO); // prool fool
 		}
 
 		/* read from client */

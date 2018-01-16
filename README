@@ -1,4 +1,21 @@
-[![Build Status](https://travis-ci.org/seanmiddleditch/libtelnet.svg?branch=master)](https://travis-ci.org/seanmiddleditch/libtelnet)
+Simple mud server and mud client based on libtelnet. by prool
+
+BUILD
+
+autoreconf -i
+./configuration
+make
+
+Russian UTF-8 text:
+
+Простой мад сервер и мад клиент, который я начал делать 14-Jan-2018
+на базе библиотеки libtelnet
+
+Пруль
+Prool
+http://prool.kharkov.org http://mud.kharkov.org
+proolix@gmail.com
+=====================================================================
 
 =====================================================================
   libtelnet - TELNET protocol handling library

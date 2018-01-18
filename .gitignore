@@ -36,3 +36,6 @@ msvc2010/Release/
 *.vcproj.*.user
 *.opensdf
 *.sdf
+
+#prool:
+*.log

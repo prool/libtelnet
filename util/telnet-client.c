@@ -30,11 +30,18 @@
 #include <termios.h>
 #include <unistd.h>
 
+// prool begin
+#define BUFLEN 512
+#include "prool_profile.c"
+// prool end
+
 #ifdef HAVE_ZLIB
 #include "zlib.h"
 #endif
 
 #include "libtelnet.h"
+
+	int sock;
 
 static struct termios orig_tios;
 static telnet_t *telnet;
@@ -43,7 +50,7 @@ static int do_echo;
 static const telnet_telopt_t telopts[] = {
 	{ TELNET_TELOPT_ECHO,		TELNET_WONT, TELNET_DO   },
 	{ TELNET_TELOPT_TTYPE,		TELNET_WILL, TELNET_DONT },
-	{ TELNET_TELOPT_COMPRESS2,	TELNET_WONT, TELNET_DO   },
+	//{ TELNET_TELOPT_COMPRESS2,	TELNET_WONT, TELNET_DO   }, // prool fool
 	{ TELNET_TELOPT_MSSP,		TELNET_WONT, TELNET_DO   },
 	{ -1, 0, 0 }
 };
@@ -146,27 +153,57 @@ static void _event_handler(telnet_t *telnet, telnet_event_t *ev,
 	}
 }
 
+void exekute (char *kmd)
+{
+if ((!strcmp(kmd,"prool")) || (!strcmp(kmd,"help"))) {
+printf("\r\nProol MUD client\r\n\r\n\
+Commands:\r\n\
+#prool #help - help\r\n\
+#zap #quit #exit - quit\r\n\
+");
+	} else if ((!strcmp(kmd,"zap")) || (!strcmp(kmd,"quit")) || (!strcmp(kmd,"exit")) )
+	{
+		telnet_free(telnet);
+		close(sock);
+		printf("\r\nMUD client quit!\r\n");
+		exit(1);
+	} else {
+	printf("\r\nUnknown command '%s'\r\n", kmd);
+	}
+}
+
 int main(int argc, char **argv) {
-	char buffer[512];
+	char buffer[BUFLEN];
 	int rs;
-	int sock;
 	struct sockaddr_in addr;
 	struct pollfd pfd[2];
 	struct addrinfo *ai;
 	struct addrinfo hints;
 	struct termios tios;
 
+	// begin prool
 	FILE *fp;
+	int i;
+	char proolbuf[BUFLEN];
+	char kommando[BUFLEN];
+	int status=0, i_komm=0;
+	char *cc;
+	int total=0;
+	// end prool
 
 	/* check usage */
 	if (argc != 3) {
 		fprintf(stderr, "Usage:\n ./telnet-client <host> <port>\n");
 		return 1;
-	}
+}
 
 	// prool begin
-	fp=fopen("prooltel.log","a");
-	if (fp==0) printf("Can't open prooltel.log\n");
+	printf("\r\nProol MUD client. Use #help for help\r\n\r\n");
+
+	strcpy(proolbuf,argv[1]);
+	strcat(proolbuf,".log");
+	fp=fopen(proolbuf,"a");
+	if (fp==0) printf("Can't open %s\n", proolbuf);
 	if (fp) fputs("log open\n", fp);
 	// prool end
 
@@ -230,6 +267,23 @@ int main(int argc, char **argv) {
 		/* read from stdin */
 		if (pfd[0].revents & POLLIN) {
 			if ((rs = read(STDIN_FILENO, buffer, sizeof(buffer))) > 0) {
+				if (status==1) {// status - kommand input
+					putchar(buffer[0]);
+					fflush(stdout);
+					if ((buffer[0]=='\r') || (buffer[0]=='\n')) {
+						status=0;
+						kommando[i_komm]=0;
+						exekute(kommando);
+					} else {
+						kommando[i_komm++]=buffer[0];
+					}
+				} else if (buffer[0]=='#') {
+					putchar(buffer[0]);
+					fflush(stdout);
+					status=1;
+					i_komm=0;
+					kommando[0]=0;
+				} else
 				_input(buffer, rs);
 			} else if (rs == 0) {
 				break;
@@ -243,6 +297,12 @@ int main(int argc, char **argv) {
 		/* read from client */
 		if (pfd[1].revents & POLLIN) {
 			if ((rs = recv(sock, buffer, sizeof(buffer), 0)) > 0) {
+				// begin prool
+				for (i=0;i<BUFLEN;i++) proolbuf[i]=0;
+				for (i=0;i<rs;i++) proolbuf[i]=buffer[i];
+				if (fp) { fprintf(fp,"%s",proolbuf); }
+#include "prool_triggers.c"
+				// end prool
 				telnet_recv(telnet, buffer, rs);
 			} else if (rs == 0) {
 				break;
@@ -258,5 +318,10 @@ int main(int argc, char **argv) {
 	telnet_free(telnet);
 	close(sock);
 
+	printf("MUD client finished\r\n"); // prool
+#ifdef STR1
+	printf("TOTAL PLAYER STATISTICS %i\r\n",total);
+	if (fp) fprintf(fp,"TOTAL PLAYER STATISTICS %i\n",total);
+#endif
 	return 0;
 }

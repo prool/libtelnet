@@ -1,0 +1,30 @@
+				// triggers
+
+				#define STR1 "зевн\n"
+				if (strstr(proolbuf,"Прошел час")) { _input(STR1, strlen(STR1)); }
+
+				#define STR1 "5\n"
+				if (strstr(proolbuf,"Select one")) { _input(STR1, strlen(STR1)); }
+
+				#define STR1 "робот прибой222\n"
+				if (strstr(proolbuf,"Введите своё имя")) { _input(STR1, strlen(STR1)); }
+
+				#define STR1 "\n"
+				if (strstr(proolbuf,"ENTER")) { _input(STR1, strlen(STR1)); }
+
+				#define STR1 "who\n"
+				if (strstr(proolbuf,"Зауч")) { _input(STR1, strlen(STR1)); }
+
+				#define STR1 "quit\n"
+				if (strstr(proolbuf,"Всего")) { _input(STR1, strlen(STR1)); }
+
+				#define STR1 "0\n"
+				if (strstr(proolbuf,"Отсоединиться")) { _input(STR1, strlen(STR1)); }
+
+				// search total player statistics
+				#define STR1 "смертных "
+				cc=strstr(proolbuf,STR1);
+				if (cc) {
+				total=atoi(cc+strlen(STR1));
+				if (total>0) total--;
+				}

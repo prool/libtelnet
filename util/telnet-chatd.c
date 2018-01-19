@@ -4,6 +4,8 @@ http://prool.kharkov.org
 proolix@gmail.com
 */
 
+#define PROOL "Prool MUD server\r\n"
+
 /*
  * Sean Middleditch
  * sean@sourcemud.org
@@ -189,8 +191,27 @@ static void _online(const char *line, int overflow, void *ud) {
 		exit(0);
 	}
 
+#define INV_CMD "Invalid command\r\n"
+
+#define PROOL_HELP "Prool MUD help\r\n\
+help - help\r\n\
+test - test\r\n\
+quit - quit from MUD\r\n\
+shutdown - shutdown MUD server\r\n\
+\r\n"
+
+	else if (strcmp(line,"help")==0) {
+		_send(user->sock,PROOL_HELP,strlen(PROOL_HELP));
+	}
+
+	else {
+	_send(user->sock,INV_CMD,strlen(INV_CMD));
+	}
+
+#if 0 // prool
 	/* just a message -- send to all users */
 	_message(user->name, line);
+#endif
 }
 
 static void _input(struct user_t *user, const char *buffer,
@@ -256,6 +277,7 @@ int main(int argc, char **argv) {
 
 	/* check usage */
 	if (argc != 2) {
+		printf(PROOL);
 		fprintf(stderr, "Usage:\n ./telnet-chatd <port>\n");
 		return 1;
 	}
@@ -295,6 +317,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
+	printf(PROOL);
 	printf("LISTENING ON PORT %d\n", listen_port);
 
 	/* initialize listening descriptors */

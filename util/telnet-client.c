@@ -189,16 +189,18 @@ int main(int argc, char **argv) {
 	int status=0, i_komm=0;
 	char *cc;
 	int total=0;
+#define PROOL	"\r\nProol MUD client. Use #help for help\r\n\r\n"
 	// end prool
 
 	/* check usage */
 	if (argc != 3) {
+		printf(PROOL);
 		fprintf(stderr, "Usage:\n ./telnet-client <host> <port>\n");
 		return 1;
 }
 
 	// prool begin
-	printf("\r\nProol MUD client. Use #help for help\r\n\r\n");
+	printf(PROOL);
 
 	strcpy(proolbuf,argv[1]);
 	strcat(proolbuf,".log");

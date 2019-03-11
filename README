@@ -3,7 +3,7 @@ Simple mud server and mud client based on libtelnet. by prool
 BUILD
 
 autoreconf -i
-./configuration
+./configure
 make
 
 Russian UTF-8 text:
